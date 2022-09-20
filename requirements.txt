@@ -1,8 +1,9 @@
 absl-py
 numpy
+pandas
 scipy
 tensorflow
-tensorflow-gpu
+
 tensorflow_probability
 matplotlib
 scikit-learn
