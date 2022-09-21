@@ -67,7 +67,7 @@ flags.DEFINE_float('gradient_clip', 1e4, 'Maximum global gradient norm for the g
 flags.DEFINE_integer('num_steps', 0, 'Number of training steps: If non-zero it overwrites num_epochs')
 flags.DEFINE_integer('print_interval', 0, 'Interval for printing the loss and saving the model during training')
 flags.DEFINE_string('exp_name', "debug", 'Name of the experiment')
-flags.DEFINE_string('basedir', "models", 'Directory where the models should be stored')
+flags.DEFINE_string('basedir', "~/scratch/GP-VAE/models", 'Directory where the models should be stored')
 flags.DEFINE_string('data_dir', "", 'Directory from where the data should be read in')
 flags.DEFINE_enum('data_type', 'hmnist', ['hmnist', 'physionet', 'sprites'], 'Type of data to be trained on')
 flags.DEFINE_integer('seed', 1337, 'Seed for the random number generator')
