@@ -67,7 +67,7 @@ flags.DEFINE_float('gradient_clip', 1e4, 'Maximum global gradient norm for the g
 flags.DEFINE_integer('num_steps', 0, 'Number of training steps: If non-zero it overwrites num_epochs')
 flags.DEFINE_integer('print_interval', 0, 'Interval for printing the loss and saving the model during training')
 flags.DEFINE_string('exp_name', "debug", 'Name of the experiment')
-flags.DEFINE_string('basedir', "models", 'Directory where the models should be stored')
+flags.DEFINE_string('basedir', "models", 'Directory where the models should be stored') #~/scratch/GP-VAE/models/
 flags.DEFINE_string('data_dir', "", 'Directory from where the data should be read in')
 flags.DEFINE_enum('data_type', 'hmnist', ['hmnist', 'physionet', 'sprites'], 'Type of data to be trained on')
 flags.DEFINE_integer('seed', 1337, 'Seed for the random number generator')
@@ -131,7 +131,7 @@ def main(argv):
         decoder = GaussianDecoder
     elif FLAGS.data_type == "sprites":
         if FLAGS.data_dir == "":
-            FLAGS.data_dir = "data/sprites/sprites.npz"
+            FLAGS.data_dir = "data/sprites/sprites.npz" #"~/scratch/GP-VAE/data/sprites/sprites.npz"
         data_dim = 12288
         time_length = 8
         decoder = GaussianDecoder
@@ -145,6 +145,9 @@ def main(argv):
     # Load data #
     #############
 
+    #path_data = os.path.normpath("/scratch/GP-VAE/data/sprites/sprites.npz")
+    #data = np.load("/home/safros/scratch/GP-VAE/data/sprites/sprites.npz")
+    
     data = np.load(FLAGS.data_dir)
     x_train_full = data['x_train_full']
     x_train_miss = data['x_train_miss']
@@ -272,6 +275,7 @@ def main(argv):
     t0 = time.time()
     with summary_writer.as_default(), tf.contrib.summary.always_record_summaries():
         for i, (x_seq, m_seq) in enumerate(tf_x_train_miss.take(num_steps)):
+            tf.compat.v1.summary.all_v2_summary_ops()
             try:
                 with tf.GradientTape() as tape:
                     tape.watch(trainable_vars)
@@ -292,9 +296,9 @@ def main(argv):
                     print("Train loss = {:.3f} | NLL = {:.3f} | KL = {:.3f}".format(loss, nll, kl))
 
                     saver.save(checkpoint_prefix)
-                    tf.contrib.summary.scalar("loss_train", loss)
-                    tf.contrib.summary.scalar("kl_train", kl)
-                    tf.contrib.summary.scalar("nll_train", nll)
+                    tf.compat.v1.summary.scalar("loss_train", loss)
+                    tf.compat.v1.summary.scalar("kl_train", kl)
+                    tf.compat.v1.summary.scalar("nll_train", nll)
 
                     # Validation loss
                     x_val_batch, m_val_batch = tf_x_val_miss.get_next()
@@ -302,15 +306,15 @@ def main(argv):
                     losses_val.append(val_loss.numpy())
                     print("Validation loss = {:.3f} | NLL = {:.3f} | KL = {:.3f}".format(val_loss, val_nll, val_kl))
 
-                    tf.contrib.summary.scalar("loss_val", val_loss)
-                    tf.contrib.summary.scalar("kl_val", val_kl)
-                    tf.contrib.summary.scalar("nll_val", val_nll)
+                    tf.compat.v1.summary.scalar("loss_val", val_loss)
+                    tf.compat.v1.summary.scalar("kl_val", val_kl)
+                    tf.compat.v1.summary.scalar("nll_val", val_nll)
 
                     if FLAGS.data_type in ["hmnist", "sprites"]:
                         # Draw reconstructed images
                         x_hat = model.decode(model.encode(x_seq).sample()).mean()
-                        tf.contrib.summary.image("input_train", tf.reshape(x_seq, [-1]+list(img_shape)))
-                        tf.contrib.summary.image("reconstruction_train", tf.reshape(x_hat, [-1]+list(img_shape)))
+                        tf.compat.v1.summary.image("input_train", tf.reshape(x_seq, [-1]+list(img_shape)))
+                        tf.compat.v1.summary.image("reconstruction_train", tf.reshape(x_hat, [-1]+list(img_shape)))
                     elif FLAGS.data_type == 'physionet':
                         # Eval MSE and AUROC on entire val set
                         x_val_miss_batches = np.array_split(x_val_miss, FLAGS.batch_size, axis=0)
